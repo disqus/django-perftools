@@ -20,7 +20,7 @@ setup(
     license='Apache License 2.0',
     tests_require=tests_require,
     extras_require={'test': tests_require},
-    test_suite='runtests.runtests',
+    test_suite='unittest2.collector',
     include_package_data=True,
     classifiers=[
         'Framework :: Django',

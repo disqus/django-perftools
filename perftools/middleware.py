@@ -6,6 +6,7 @@ perftools.middleware
 :license: Apache License 2.0, see LICENSE for more details.
 """
 
+import eventlet
 import logging
 import time
 import thread
@@ -40,8 +41,6 @@ class RequestLogger(threading.Thread):
         return self._stop.isSet()
 
     def get_parent_frame(self):
-        if self.parent_id not in threadframe().keys():
-            print self.parent_id
         return threadframe()[self.parent_id]
     
     def get_frames(self, frame):
@@ -89,8 +88,6 @@ class RequestLogger(threading.Thread):
         
         url = self.request.build_absolute_uri()
         
-        print url, culprit
-        
         logger.warning('Request exceeeded execution time threshold: %s', url, extra={
             'request': self.request,
             'view': culprit,
@@ -109,7 +106,7 @@ class RequestLogger(threading.Thread):
                 self.log_request(elapsed)
                 self.stop()
 
-            time.sleep(0.1)
+            eventlet.sleep(0.1)
 
 class SlowRequestLoggingMiddleware(threading.local):
     def __init__(self, application, threshold=100):
