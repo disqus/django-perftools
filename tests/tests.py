@@ -66,3 +66,6 @@ class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
         request = record.request
         self.assertTrue('SERVER_NAME' in request.META)
         self.assertEquals(request.META['SERVER_NAME'], 'test')
+
+        self.assertTrue(hasattr(record, 'view'))
+        self.assertEquals(record.view, 'tests.tests.test_blocking')
