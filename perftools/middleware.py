@@ -87,7 +87,7 @@ class RequestLogger(threading.Thread):
         
         url = self.request.build_absolute_uri()
         
-        logger.warning('Request exceeeded execution time threshold: %s', url, extra={
+        self.logger.warning('Request exceeeded execution time threshold: %s', url, extra={
             'request': self.request,
             'view': culprit,
             'url': url,
