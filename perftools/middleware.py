@@ -6,7 +6,6 @@ perftools.middleware
 :license: Apache License 2.0, see LICENSE for more details.
 """
 
-import eventlet
 import logging
 import time
 import thread
@@ -101,26 +100,26 @@ class RequestLogger(threading.Thread):
         start = time.time()
         while not self.is_stopped():
             now = time.time()
-            elapsed = now - start
+            elapsed = (now - start) * 1000
             if elapsed > self.threshold:
                 self.log_request(elapsed)
                 self.stop()
 
-            eventlet.sleep(0.1)
+            time.sleep(0.01)
 
 class SlowRequestLoggingMiddleware(threading.local):
-    def __init__(self, application, threshold=100):
+    def __init__(self, application, threshold=1):
         self.application = application
         self.threshold = threshold
     
     def __call__(self, environ, start_response):
         request = WSGIRequest(environ)
         
-        self.thread = RequestLogger(thread.get_ident(), request, self.threshold)
-        self.thread.start()
+        logger = RequestLogger(thread.get_ident(), request, self.threshold)
+        logger.start()
         
         try:
             return self.application(environ, start_response)
         finally:
-            self.thread.stop()
-            self.thread.join(timeout=1)
+            logger.stop()
+            logger.join(timeout=1)

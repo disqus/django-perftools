@@ -1,6 +1,6 @@
-import eventlet
 import logging
 import sys
+import time
 import unittest2
 
 from perftools.middleware import SlowRequestLoggingMiddleware
@@ -27,7 +27,7 @@ class MockApp(object):
     
     def __call__(self, environ, start_response):
         if self.wait:
-            eventlet.sleep(self.wait)
+            time.sleep(self.wait)
         return start_response()
 
 class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
@@ -49,7 +49,7 @@ class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
         logger.addHandler(CaptureHandler(self))
     
     def test_blocking(self):
-        app = SlowRequestLoggingMiddleware(MockApp(wait=1.1), threshold=1)
+        app = SlowRequestLoggingMiddleware(MockApp(wait=0.1), threshold=1)
         response = app({
             'REMOTE_ADDR': '127.0.0.1',
             'REQUEST_METHOD': 'GET',
