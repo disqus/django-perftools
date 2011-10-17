@@ -7,6 +7,6 @@ metadata for the request (as defined by Sentry's logging spec).
 
 ::
 
-    import perftools.middleware.SlowRequestLoggingMiddleware
-    
+    from perftools.middleware import SlowRequestLoggingMiddleware
+
     app = SlowRequestLoggingMiddleware(app, threshold=100) # in ms
