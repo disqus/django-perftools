@@ -23,7 +23,8 @@ class RemoteProfilingMiddleware(object):
 
     def __call__(self, environ, start_response):
         if not self.should_profile(environ):
-            return self.application(environ, start_response)
+            for event in self.application(environ, start_response):
+                yield event
 
         profile = cProfile.Profile()
         ts = map(str, divmod(time.time(), 1000))
