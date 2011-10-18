@@ -7,6 +7,17 @@ metadata for the request (as defined by Sentry's logging spec).
 
 ::
 
-    from perftools.middleware import SlowRequestLoggingMiddleware
+    from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 
     app = SlowRequestLoggingMiddleware(app, threshold=100) # in ms
+
+Remote Profiling
+================
+
+Profiles a request and saves the results to disk.
+
+::
+
+    from perftools.middleware.remoteprof import RemoteProfilingMiddleware
+
+    app = RemoteProfilingMiddleware(app, outpath='/var/data/cprofile-results/', percent=10) # 10% of requests
