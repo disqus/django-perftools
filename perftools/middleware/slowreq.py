@@ -122,7 +122,8 @@ class SlowRequestLoggingMiddleware(threading.local):
         logger.start()
 
         try:
-            return self.application(environ, start_response)
+            for event in self.application(environ, start_response):
+                yield event
         finally:
             logger.stop()
             logger.join(timeout=1)
