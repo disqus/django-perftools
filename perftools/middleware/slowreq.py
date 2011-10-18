@@ -7,7 +7,6 @@ perftools.middleware.slowreq
 """
 
 import logging
-import time
 import thread
 import threading
 
@@ -24,24 +23,27 @@ except ImportError:
 
 logger = logging.getLogger('perftools')
 
-class RequestLogger(threading.Thread):
-    def __init__(self, parent_id, request, threshold=100, logger=logger, stacks=False):
-        super(RequestLogger, self).__init__()
-        self.parent_id = parent_id
-        self.request = request
-        self.threshold = threshold
-        self.logger = logger
+class SlowRequestLoggingMiddleware(threading.local):
+    def __init__(self, application, threshold=1, stacks=True, logger=logger):
+        self.application = application
+        self.threshold = float(threshold) / 1000
         self.stacks = stacks
-        self._stop = threading.Event()
+        self.logger = logger
 
-    def stop(self):
-        self._stop.set()
+    def __call__(self, environ, start_response):
+        request = WSGIRequest(environ)
 
-    def is_stopped(self):
-        return self._stop.isSet()
+        timer = threading.Timer(self.threshold, self.log_request, args=[thread.get_ident(), request])
+        timer.start()
 
-    def get_parent_frame(self):
-        return threadframe()[self.parent_id]
+        try:
+            for event in self.application(environ, start_response):
+                yield event
+        finally:
+            timer.cancel()
+
+    def get_parent_frame(self, parent_id):
+        return threadframe()[parent_id]
 
     def get_frames(self, frame):
         # TODO: look into using inspect.getouterframes()
@@ -77,19 +79,19 @@ class RequestLogger(threading.Thread):
 
         return best_guess
 
-    def log_request(self, elapsed):
+    def log_request(self, parent_id, request):
         try:
-            parent_frame = self.get_parent_frame()
+            parent_frame = self.get_parent_frame(parent_id)
         except KeyError:
             culprit = None
         else:
             frames = self.get_frames(parent_frame)
             culprit = self.get_culprit(frames)
 
-        url = self.request.build_absolute_uri()
+        url = request.build_absolute_uri()
 
         self.logger.warning('Request exceeeded execution time threshold: %s', url, extra={
-            'request': self.request,
+            'request': request,
             'view': culprit,
             'url': url,
             'stack': self.stacks,
@@ -97,33 +99,3 @@ class RequestLogger(threading.Thread):
                 'threshold': self.threshold,
             }
         })
-
-    def run(self):
-        start = time.time()
-        while not self.is_stopped():
-            now = time.time()
-            elapsed = (now - start) * 1000
-            if elapsed > self.threshold:
-                self.log_request(elapsed)
-                self.stop()
-
-            time.sleep(0.01)
-
-class SlowRequestLoggingMiddleware(threading.local):
-    def __init__(self, application, threshold=1, stacks=True):
-        self.application = application
-        self.threshold = threshold
-        self.stacks = stacks
-
-    def __call__(self, environ, start_response):
-        request = WSGIRequest(environ)
-
-        logger = RequestLogger(thread.get_ident(), request, self.threshold, stacks=self.stacks)
-        logger.start()
-
-        try:
-            for event in self.application(environ, start_response):
-                yield event
-        finally:
-            logger.stop()
-            logger.join(timeout=1)

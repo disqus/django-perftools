@@ -54,14 +54,14 @@ class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
 
     def test_blocking(self):
         app = SlowRequestLoggingMiddleware(MockApp(wait=0.1), threshold=1)
-        response = app({
+        response = list(app({
             'REMOTE_ADDR': '127.0.0.1',
             'REQUEST_METHOD': 'GET',
             'SERVER_NAME': 'test',
             'SERVER_PORT': '80',
             'wsgi.input': sys.stdin,
-        }, lambda:'')
-        self.assertEquals(response, '')
+        }, lambda:''))
+        self.assertEquals(response, list(''))
         self.assertEquals(len(self.captured_logs), 1)
 
         record = self.captured_logs[0]
@@ -88,15 +88,15 @@ class RemoteProfilingMiddlewareMiddlewareTest(unittest2.TestCase):
 
     def test_blocking(self):
         app = AlwaysProfileMiddleware(MockApp(wait=0.1), outpath=self.outpath)
-        response = app({
+        response = list(app({
             'REMOTE_ADDR': '127.0.0.1',
             'REQUEST_METHOD': 'GET',
             'SERVER_NAME': 'test',
             'SERVER_PORT': '80',
             'wsgi.input': sys.stdin,
-        }, lambda:'')
+        }, lambda:''))
 
-        self.assertEquals(response, '')
+        self.assertEquals(response, list(''))
         dirs = os.listdir(self.outpath)
         self.assertEquals(len(dirs), 1)
         dirs_2 = os.listdir(os.path.join(self.outpath, dirs[0]))
