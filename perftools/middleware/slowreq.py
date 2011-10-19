@@ -82,6 +82,7 @@ class SlowRequestLoggingMiddleware(threading.local):
         try:
             parent_frame = self.get_parent_frame(parent_id)
         except KeyError:
+            frames = []
             culprit = None
         else:
             frames = self.get_frames(parent_frame)
@@ -92,8 +93,8 @@ class SlowRequestLoggingMiddleware(threading.local):
         self.logger.warning('Request exceeeded execution time threshold: %s', url, extra={
             'request': request,
             'view': culprit,
+            'stack': frames,
             'url': url,
-            'stack': self.stacks,
             'data': {
                 'threshold': self.threshold,
             }
