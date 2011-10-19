@@ -23,8 +23,7 @@ class RemoteProfilingMiddleware(object):
 
     def __call__(self, environ, start_response):
         if not self.should_profile(environ):
-            for event in self.application(environ, start_response):
-                yield event
+            return self.application(environ, start_response)
 
         profile = cProfile.Profile()
         ts = map(str, divmod(time.time(), 1000))
@@ -33,8 +32,7 @@ class RemoteProfilingMiddleware(object):
         outfile = '%s-%s-%s.profile' % (ts[0], ts[1], randnum)
 
         try:
-            for event in profile.runcall(self.application, environ, start_response):
-                yield event
+            return profile.runcall(self.application, environ, start_response)
         finally:
             try:
                 if not os.path.exists(outpath):

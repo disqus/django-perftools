@@ -37,8 +37,7 @@ class SlowRequestLoggingMiddleware(threading.local):
         timer.start()
 
         try:
-            for event in self.application(environ, start_response):
-                yield event
+            return self.application(environ, start_response)
         finally:
             timer.cancel()
 
