@@ -8,7 +8,6 @@ import unittest2
 
 from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 from perftools.middleware.remoteprof import RemoteProfilingMiddleware
-from perftools.middleware.querycount import QueryCountLoggingMiddleware
 
 from django.conf import settings
 
