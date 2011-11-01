@@ -8,6 +8,7 @@ perftools.middleware
 
 from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 from perftools.middleware.remoteprof import RemoteProfilingMiddleware
+from perftools.middleware.querycount import QueryCountLoggingMiddlewareTest
 
-__all__ = ('SlowRequestLoggingMiddleware', 'RemoteProfilingMiddleware')
+__all__ = ('SlowRequestLoggingMiddleware', 'RemoteProfilingMiddleware', 'QueryCountLoggingMiddlewareTest')
 
