@@ -9,7 +9,7 @@ tests_require = [
 
 setup(
     name='django-perftools',
-    version='0.4',
+    version='0.4.1',
     author='DISQUS',
     author_email='opensource@disqus.com',
     url='http://github.com/disqus/django-perftools',

@@ -52,11 +52,11 @@ class CursorWrapper(object):
     def __iter__(self):
         return iter(self.cursor)
 
-def get_cursor_wrapper(state):
+def get_cursor_wrapper(state, queries=False):
     def cursor(func, self, *args, **kwargs):
         result = func(self, *args, **kwargs)
 
-        return CursorWrapper(result, self, state)
+        return CursorWrapper(result, self, state, queries=queries)
     return cursor
 
 class QueryCountLoggingMiddlewareTest(object):
