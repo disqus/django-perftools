@@ -32,7 +32,7 @@ class RemoteProfilingMiddleware(object):
         outfile = '%s-%s-%s.profile' % (ts[0], ts[1], randnum)
 
         try:
-            return profile.runcall(self.application, environ, start_response)
+            return list(profile.runcall(self.application, environ, start_response))
         finally:
             try:
                 if not os.path.exists(outpath):
