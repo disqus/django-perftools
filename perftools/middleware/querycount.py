@@ -62,7 +62,7 @@ def get_cursor_wrapper(state, queries=False):
 class QueryCountLoggingMiddlewareTest(object):
     def __init__(self, application, threshold=1, stacks=True, queries=False, logger=logger):
         self.application = application
-        self.threshold = float(threshold) / 1000
+        self.threshold = threshold
         self.stacks = stacks
         self.logger = logger
         self.queries = queries
