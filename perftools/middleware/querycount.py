@@ -81,8 +81,6 @@ class QueryCountLoggingMiddlewareTest(object):
     def log_request(self, request, state):
         url = request.build_absolute_uri()
 
-        print state.queries
-
         self.logger.warning('Request exceeeded query count threshold: %s', url, extra={
             'request': request,
             'stack': self.stacks,

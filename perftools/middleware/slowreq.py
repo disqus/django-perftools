@@ -13,6 +13,8 @@ import threading
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 
+from perftools.utils import get_culprit
+
 try:
     # Available from Python >= 2.5
     from sys import _current_frames as threadframe
@@ -55,29 +57,6 @@ class SlowRequestLoggingMiddleware(threading.local):
 
         return frames
 
-    def get_culprit(self, frames):
-        def contains(iterator, value):
-            for k in iterator:
-                if value.startswith(k):
-                    return True
-            return False
-
-        modules = settings.INSTALLED_APPS
-
-        best_guess = None
-        for frame in frames:
-            try:
-                culprit = '.'.join([frame.f_globals['__name__'], frame.f_code.co_name])
-            except:
-                continue
-            if contains(modules, culprit):
-                if not best_guess:
-                    best_guess = culprit
-            elif best_guess:
-                break
-
-        return best_guess
-
     def log_request(self, parent_id, request):
         try:
             parent_frame = self.get_parent_frame(parent_id)
@@ -86,7 +65,7 @@ class SlowRequestLoggingMiddleware(threading.local):
             culprit = None
         else:
             frames = self.get_frames(parent_frame)
-            culprit = self.get_culprit(frames)
+            culprit = get_culprit(frames, settings.INSTALLED_APPS)
 
         url = request.build_absolute_uri()
 
