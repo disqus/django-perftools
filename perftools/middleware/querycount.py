@@ -14,7 +14,7 @@ from perftools.patcher import Patcher
 
 logger = logging.getLogger('perftools')
 
-class State(object):
+class State(threading.local):
     def __init__(self):
         self.count = 0
         self.queries = []
@@ -80,6 +80,8 @@ class QueryCountLoggingMiddlewareTest(object):
 
     def log_request(self, request, state):
         url = request.build_absolute_uri()
+
+        print state.queries
 
         self.logger.warning('Request exceeeded query count threshold: %s', url, extra={
             'request': request,
