@@ -13,16 +13,18 @@ import random
 import sys
 import time
 
-class RemoteProfilingMiddleware(object):
+from perftools.middleware import Base
+
+class RemoteProfilingMiddleware(Base):
     logger = logging.getLogger(__name__)
 
-    def __init__(self, application, outpath, percent=100):
+    def __init__(self, application, outpath, **kwargs):
         self.application = application
         self.outpath = outpath
-        self.percent = percent
+        super(RemoteProfilingMiddleware, self).__init__(application, **kwargs)
 
     def __call__(self, environ, start_response):
-        if not self.should_profile(environ):
+        if not self.should_run(environ):
             return self.application(environ, start_response)
 
         profile = cProfile.Profile()
@@ -40,8 +42,3 @@ class RemoteProfilingMiddleware(object):
                 profile.dump_stats(os.path.join(outpath, outfile))
             except Exception, e:
                 self.logger.exception(e)
-
-    def should_profile(self, environ):
-        return random.randint(0, sys.maxint) % self.percent == 0
-        # from gargoyle import gargoyle
-        # return gargoyle.is_active('remote_profiler')

@@ -76,7 +76,7 @@ class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
         self.assertEquals(record.view, 'tests.tests.test_blocking')
 
 class AlwaysProfileMiddleware(RemoteProfilingMiddleware):
-    def should_profile(self, environ):
+    def should_run(self, environ):
         return True
 
 class RemoteProfilingMiddlewareMiddlewareTest(unittest2.TestCase):
@@ -84,7 +84,10 @@ class RemoteProfilingMiddlewareMiddlewareTest(unittest2.TestCase):
         self.outpath = os.path.join(os.path.dirname(__file__), 'profiles')
 
     def tearDown(self):
-        shutil.rmtree(self.outpath)
+        try:
+            shutil.rmtree(self.outpath)
+        except:
+            pass
 
     def test_blocking(self):
         app = AlwaysProfileMiddleware(MockApp(wait=0.1), outpath=self.outpath)

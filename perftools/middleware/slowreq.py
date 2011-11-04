@@ -13,6 +13,7 @@ import threading
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 
+from perftools.middleware import Base
 from perftools.utils import get_culprit
 
 try:
@@ -23,16 +24,18 @@ except ImportError:
     # Wrapper to provide the same interface as the one from Python >= 2.5
     threadframe = lambda: _threadframe.dict()
 
-logger = logging.getLogger('perftools')
-
-class SlowRequestLoggingMiddleware(threading.local):
-    def __init__(self, application, threshold=1, stacks=True, logger=logger):
+class SlowRequestLoggingMiddleware(Base):
+    def __init__(self, application, threshold=1, stacks=True, logger=None, **kwargs):
         self.application = application
         self.threshold = float(threshold) / 1000
         self.stacks = stacks
-        self.logger = logger
+        self.logger = logger or logging.getLogger('perftools')
+        super(SlowRequestLoggingMiddleware, self).__init__(application, **kwargs)
 
     def __call__(self, environ, start_response):
+        if not self.should_run(environ):
+            return self.application(environ, start_response)
+
         request = WSGIRequest(environ)
 
         timer = threading.Timer(self.threshold, self.log_request, args=[thread.get_ident(), request])

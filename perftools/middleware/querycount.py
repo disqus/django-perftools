@@ -7,12 +7,13 @@ perftools.middleware.querycount
 """
 
 import logging
+import random
+import sys
 import threading
 
 from django.core.handlers.wsgi import WSGIRequest
+from perftools.middleware import Base
 from perftools.patcher import Patcher
-
-logger = logging.getLogger('perftools')
 
 class State(threading.local):
     def __init__(self):
@@ -59,15 +60,19 @@ def get_cursor_wrapper(state, queries=False):
         return CursorWrapper(result, self, state, queries=queries)
     return cursor
 
-class QueryCountLoggingMiddlewareTest(object):
-    def __init__(self, application, threshold=1, stacks=True, queries=False, logger=logger):
+class QueryCountLoggingMiddlewareTest(Base):
+    def __init__(self, application, threshold=1, stacks=True, queries=False, logger=None, **kwargs):
         self.application = application
         self.threshold = threshold
         self.stacks = stacks
-        self.logger = logger
+        self.logger = logger or logging.getLogger('perftools')
         self.queries = queries
+        super(QueryCountLoggingMiddlewareTest, self).__init__(application, **kwargs)
 
     def __call__(self, environ, start_response):
+        if not self.should_run(environ):
+            return self.application(environ, start_response)
+
         state = State()
         cursor = get_cursor_wrapper(state, queries=self.queries)
 
