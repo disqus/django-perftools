@@ -7,8 +7,6 @@ perftools.middleware.querycount
 """
 
 import logging
-import random
-import sys
 import threading
 
 from django.core.handlers.wsgi import WSGIRequest
