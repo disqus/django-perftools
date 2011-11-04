@@ -91,6 +91,6 @@ class QueryCountLoggingMiddlewareTest(Base):
             'data': {
                 'threshold': self.threshold,
                 'query_count': state.count,
-                'queries': state.queries
+                'queries': [(k, repr(v)) for k, v in state.queries],
             }
         })
