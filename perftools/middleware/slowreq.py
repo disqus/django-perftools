@@ -29,7 +29,7 @@ class SlowRequestLoggingMiddleware(Base):
         self.application = application
         self.threshold = float(threshold) / 1000
         self.stacks = stacks
-        self.logger = logger or logging.getLogger('perftools')
+        self.logger = logger or logging.getLogger(__name__)
         super(SlowRequestLoggingMiddleware, self).__init__(application, **kwargs)
 
     def __call__(self, environ, start_response):

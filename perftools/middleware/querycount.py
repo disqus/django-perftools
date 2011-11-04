@@ -63,7 +63,7 @@ class QueryCountLoggingMiddlewareTest(Base):
         self.application = application
         self.threshold = threshold
         self.stacks = stacks
-        self.logger = logger or logging.getLogger('perftools')
+        self.logger = logger or logging.getLogger(__name__)
         self.queries = queries
         super(QueryCountLoggingMiddlewareTest, self).__init__(application, **kwargs)
 
