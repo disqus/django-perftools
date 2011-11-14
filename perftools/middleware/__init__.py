@@ -6,7 +6,7 @@ perftools.middleware
 :license: Apache License 2.0, see LICENSE for more details.
 """
 
-__all__ = ('SlowRequestLoggingMiddleware', 'RemoteProfilingMiddleware', 'QueryCountLoggingMiddlewareTest')
+__all__ = ('SlowRequestLoggingMiddleware', 'RemoteProfilingMiddleware', 'QueryCountLoggingMiddleware')
 
 import random
 import threading
@@ -22,5 +22,5 @@ class Base(threading.local):
 
 from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 from perftools.middleware.remoteprof import RemoteProfilingMiddleware
-from perftools.middleware.querycount import QueryCountLoggingMiddlewareTest
+from perftools.middleware.querycount import QueryCountLoggingMiddleware
 

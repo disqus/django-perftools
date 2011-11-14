@@ -58,14 +58,14 @@ def get_cursor_wrapper(state, queries=False):
         return CursorWrapper(result, self, state, queries=queries)
     return cursor
 
-class QueryCountLoggingMiddlewareTest(Base):
+class QueryCountLoggingMiddleware(Base):
     def __init__(self, application, threshold=1, stacks=False, queries=False, logger=None, **kwargs):
         self.application = application
         self.threshold = threshold
         self.stacks = stacks
         self.logger = logger or logging.getLogger(__name__)
         self.queries = queries
-        super(QueryCountLoggingMiddlewareTest, self).__init__(application, **kwargs)
+        super(QueryCountLoggingMiddleware, self).__init__(application, **kwargs)
 
     def __call__(self, environ, start_response):
         if not self.should_run(environ):
