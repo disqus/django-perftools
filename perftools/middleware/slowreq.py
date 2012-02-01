@@ -24,6 +24,7 @@ except ImportError:
     # Wrapper to provide the same interface as the one from Python >= 2.5
     threadframe = lambda: _threadframe.dict()
 
+
 class SlowRequestLoggingMiddleware(Base):
     def __init__(self, application, threshold=1, stacks=True, logger=None, **kwargs):
         self.application = application

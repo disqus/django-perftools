@@ -4,6 +4,7 @@ def contains(iterator, value):
             return True
     return False
 
+
 def get_culprit(frames, modules=[]):
     best_guess = None
     for frame in frames:

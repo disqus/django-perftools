@@ -11,6 +11,7 @@ __all__ = ('SlowRequestLoggingMiddleware', 'RemoteProfilingMiddleware', 'QueryCo
 import random
 import threading
 
+
 class Base(threading.local):
     def __init__(self, application, percent=100):
         self.percent = percent

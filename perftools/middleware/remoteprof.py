@@ -15,6 +15,7 @@ import time
 
 from perftools.middleware import Base
 
+
 class RemoteProfilingMiddleware(Base):
     logger = logging.getLogger(__name__)
 

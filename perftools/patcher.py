@@ -1,5 +1,3 @@
-from threading import local
-
 def _dot_lookup(thing, comp, import_path):
     try:
         return getattr(thing, comp)
@@ -17,6 +15,7 @@ def import_string(target):
         import_path += ".%s" % comp
         thing = _dot_lookup(thing, comp, import_path)
     return thing
+
 
 class Patcher(object):
     def __init__(self, target, callback):
@@ -37,6 +36,7 @@ class Patcher(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         setattr(self.target, self.attribute, self.original)
+
 
 def patch(target):
     """

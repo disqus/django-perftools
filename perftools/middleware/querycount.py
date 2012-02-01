@@ -13,10 +13,12 @@ from django.core.handlers.wsgi import WSGIRequest
 from perftools.middleware import Base
 from perftools.patcher import Patcher
 
+
 class State(threading.local):
     def __init__(self):
         self.count = 0
         self.queries = []
+
 
 class CursorWrapper(object):
     def __init__(self, cursor, connection, state, queries=False):
@@ -51,12 +53,14 @@ class CursorWrapper(object):
     def __iter__(self):
         return iter(self.cursor)
 
+
 def get_cursor_wrapper(state, queries=False):
     def cursor(func, self, *args, **kwargs):
         result = func(self, *args, **kwargs)
 
         return CursorWrapper(result, self, state, queries=queries)
     return cursor
+
 
 class QueryCountLoggingMiddleware(Base):
     def __init__(self, application, threshold=1, stacks=False, queries=False, logger=None, **kwargs):
