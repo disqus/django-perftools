@@ -8,6 +8,7 @@ import unittest2
 
 from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 from perftools.middleware.remoteprof import RemoteProfilingMiddleware
+from perftools.patcher import patch
 
 from django.conf import settings
 
@@ -25,6 +26,7 @@ if not settings.configured:
         TEMPLATE_DEBUG=True,
     )
 
+
 class MockApp(object):
     def __init__(self, wait=0):
         self.wait = wait
@@ -33,6 +35,7 @@ class MockApp(object):
         if self.wait:
             time.sleep(self.wait)
         return start_response()
+
 
 class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
     def setUp(self):
@@ -60,7 +63,7 @@ class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
             'SERVER_NAME': 'test',
             'SERVER_PORT': '80',
             'wsgi.input': sys.stdin,
-        }, lambda:''))
+        }, lambda: ''))
         self.assertEquals(response, list(''))
         self.assertEquals(len(self.captured_logs), 1)
 
@@ -75,9 +78,11 @@ class SlowRequestLoggingMiddlewareTest(unittest2.TestCase):
         self.assertTrue(hasattr(record, 'view'))
         self.assertEquals(record.view, 'tests.tests.test_blocking')
 
+
 class AlwaysProfileMiddleware(RemoteProfilingMiddleware):
     def should_run(self, environ):
         return True
+
 
 class RemoteProfilingMiddlewareMiddlewareTest(unittest2.TestCase):
     def setUp(self):
@@ -97,7 +102,7 @@ class RemoteProfilingMiddlewareMiddlewareTest(unittest2.TestCase):
             'SERVER_NAME': 'test',
             'SERVER_PORT': '80',
             'wsgi.input': sys.stdin,
-        }, lambda:''))
+        }, lambda: ''))
 
         self.assertEquals(response, list(''))
         dirs = os.listdir(self.outpath)
@@ -111,3 +116,20 @@ class RemoteProfilingMiddlewareMiddlewareTest(unittest2.TestCase):
         stats = pstats.Stats(os.path.join(self.outpath, dirs[0], dirs_2[0], dirs_3[0]))
         self.assertNotEquals(stats.total_calls, 0)
         self.assertTrue(any(__file__ in c[0] for c in stats.stats.iterkeys()))
+
+
+def func_i_want_to_patch(foo):
+    return foo
+
+
+class PatchingTest(unittest2.TestCase):
+    def test_patch(self):
+        @patch('tests.tests.func_i_want_to_patch')
+        def new_func(func, *args, **kwargs):
+            new_func.called += 1
+            return func(*args, **kwargs)
+        new_func.called = 0
+
+        result = func_i_want_to_patch('foo')
+        self.assertEquals(result, 'foo')
+        self.assertEquals(new_func.called, 1)

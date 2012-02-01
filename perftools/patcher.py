@@ -52,6 +52,9 @@ def patch(target):
     func = getattr(target, attribute)
 
     def inner(callback):
+        if getattr(func, '__patcher__', False):
+            return func
+
         def wrapped(*args, **kwargs):
             return callback(func, *args, **kwargs)
 
@@ -59,6 +62,7 @@ def patch(target):
         wrapped.__wrapped__ = actual
         wrapped.__doc__ = getattr(actual, '__doc__', None)
         wrapped.__name__ = actual.__name__
+        wrapped.__patcher__ = True
 
         setattr(target, attribute, wrapped)
         return wrapped
