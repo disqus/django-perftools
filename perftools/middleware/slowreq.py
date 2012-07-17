@@ -6,6 +6,7 @@ perftools.middleware.slowreq
 :license: Apache License 2.0, see LICENSE for more details.
 """
 
+import inspect
 import logging
 import thread
 import threading
@@ -51,15 +52,7 @@ class SlowRequestLoggingMiddleware(Base):
         return threadframe()[parent_id]
 
     def get_frames(self, frame):
-        # TODO: look into using inspect.getouterframes()
-        frames = []
-        while frame:
-            frames.append(frame)
-            frame = frame.f_back
-
-        frames = frames[::-1]
-
-        return frames
+        return inspect.getouterframes(frame)
 
     def log_request(self, parent_id, request):
         try:
