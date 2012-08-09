@@ -9,9 +9,9 @@ perftools.middleware.remoteprof
 import cProfile
 import logging
 import os.path
-import random
+import socket
 import simplejson
-import sys
+import thread
 import time
 
 from perftools.middleware import Base
@@ -24,9 +24,11 @@ class RemoteProfilingMiddleware(Base):
         self.application = application
         self.outpath = outpath
         self.threshold = threshold
+        self.hostname = socket.gethostname()
         super(RemoteProfilingMiddleware, self).__init__(application, **kwargs)
 
     def __call__(self, environ, start_response):
+        self.reqnum += 1
         if not self.should_run(environ):
             return self.application(environ, start_response)
 
@@ -44,10 +46,10 @@ class RemoteProfilingMiddleware(Base):
                 self.logger.exception(e)
 
     def report_result(self, profile, environ, start, stop, outpath):
+        thread_ident = thread.get_ident()
         ts_parts = map(lambda x: str(int(x)), divmod(start, 100000))
-        randnum = random.randint(0, sys.maxint)
         outpath = os.path.join(self.outpath, ts_parts[0], ts_parts[1])
-        outfile_base = '%s-%s' % (int(stop), randnum)
+        outfile_base = '%s-%s' % (self.reqnum, thread_ident)
 
         if not os.path.exists(outpath):
             os.makedirs(outpath)
@@ -59,4 +61,7 @@ class RemoteProfilingMiddleware(Base):
                 'environ': dict((k, v) for k, v in environ.iteritems() if isinstance(v, basestring)),
                 'start_time': start,
                 'stop_time': stop,
+                'request_number': self.reqnum,
+                'thread_ident': thread_ident,
+                'hostname': self.hostname,
             }, indent=2))

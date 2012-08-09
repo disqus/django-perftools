@@ -24,4 +24,3 @@ class Base(threading.local):
 from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 from perftools.middleware.remoteprof import RemoteProfilingMiddleware
 from perftools.middleware.querycount import QueryCountLoggingMiddleware
-
