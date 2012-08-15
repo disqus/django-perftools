@@ -17,9 +17,8 @@ class Base(threading.local):
         self.percent = percent
 
     def should_run(self, environ):
-        if self.percent == 100:
-            return True
-        return random.randint(0, 100) % self.percent == 0
+
+        return random.randint(0, 100) < self.percent
 
 from perftools.middleware.slowreq import SlowRequestLoggingMiddleware
 from perftools.middleware.remoteprof import RemoteProfilingMiddleware
